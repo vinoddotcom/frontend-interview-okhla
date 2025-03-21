@@ -2,7 +2,14 @@
 <template>
     <div>
       <SearchBar @search="fetchMovies" />
-      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-10">
+      
+      <!-- Loading state -->
+      <div v-if="isLoading" class="flex justify-center items-center mt-10">
+        <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
+      
+      <!-- Results grid -->
+      <div v-else-if="movies.length > 0" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-10">
         <div 
           v-for="movie in movies" 
           :key="movie.imdbID" 
@@ -23,10 +30,13 @@
           </div>
         </div>
       </div>
-      <div v-if="movies.length === 0" class="text-center mt-10 text-gray-600">
+      
+      <!-- Empty state -->
+      <div v-else class="text-center mt-10 text-gray-600">
         Search for movies to see results
       </div>
-      <MovieDetail v-if="selectedMovie" :movie="selectedMovie" @close="selectedMovie = null" />
+      
+      <MovieDetail v-if="selectedMovie" :movie="selectedMovie" @close="selectedMovie = null" :loading="isDetailLoading" />
     </div>
   </template>
   
@@ -47,8 +57,11 @@
   
   const movies = ref<Movie[]>([])
   const selectedMovie = ref<Movie | null>(null)
+  const isLoading = ref(false)
+  const isDetailLoading = ref(false)
   
   const fetchMovies = async (searchTerm: string) => {
+    isLoading.value = true
     try {
       const response = await fetch(`https://www.omdbapi.com/?apikey=c99c97e1&s=${searchTerm}`)
       const data = await response.json()
@@ -62,10 +75,14 @@
     } catch (error) {
       console.error('Error fetching movies:', error)
       movies.value = []
+    } finally {
+      isLoading.value = false
     }
   }
   
   const selectMovie = async (movie: Movie) => {
+    selectedMovie.value = movie // Show the movie with basic info first
+    isDetailLoading.value = true
     try {
       // Get detailed movie information
       const response = await fetch(`http://www.omdbapi.com/?apikey=c99c97e1&i=${movie.imdbID}`)
@@ -73,7 +90,9 @@
       selectedMovie.value = detailedMovie
     } catch (error) {
       console.error('Error fetching movie details:', error)
-      selectedMovie.value = movie
+      // Already showing basic movie info
+    } finally {
+      isDetailLoading.value = false
     }
   }
   </script>

@@ -30,13 +30,23 @@
             <div class="absolute top-2 right-2">
               <button class="text-gray-500" @click="close">X</button>
             </div>
-            <div class="flex flex-col items-center">
-              <img :src="movie.Poster !== 'N/A' ? movie.Poster : 'default-poster.png'" alt="Movie Poster" class="w-1/2 h-auto mx-auto mb-4" >
+            
+            <!-- Loading state -->
+            <div v-if="loading" class="flex justify-center items-center py-10">
+              <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+              <p class="ml-3 text-gray-600">Loading details...</p>
+            </div>
+            
+            <!-- Content when loaded -->
+            <div v-else class="flex flex-col">
+              <img :src="movie.Poster !== 'N/A' ? movie.Poster : 'https://via.placeholder.com/300x450?text=No+Poster+Available'" alt="Movie Poster" class="w-1/2 h-auto mx-auto mb-4" >
               <h2 class="text-2xl font-bold mt-4">{{ movie.Title }}</h2>
               <p class="text-gray-600"><strong>Year:</strong> {{ movie.Year }}</p>
               <p class="text-gray-600"><strong>Type:</strong> {{ movie.Type }}</p>
               <p v-if="movie.Plot" class="text-gray-600"><strong>Plot:</strong> {{ movie.Plot }}</p>
               <p v-if="movie.Actors" class="text-gray-600"><strong>Actors:</strong> {{ movie.Actors }}</p>
+              <p v-if="movie.Director" class="text-gray-600"><strong>Director:</strong> {{ movie.Director }}</p>
+              <p v-if="movie.imdbRating" class="text-gray-600"><strong>IMDB Rating:</strong> {{ movie.imdbRating }}</p>
             </div>
           </div>
         </TransitionChild>
@@ -57,9 +67,14 @@ interface Movie {
     Plot?: string;
     Actors?: string;
     Type?: string;
+    Director?: string;
+    imdbRating?: string;
   }
 
-defineProps<{ movie: Movie }>()
+defineProps<{ 
+  movie: Movie,
+  loading?: boolean
+}>()
 const emit = defineEmits(['close'])
 
 const close = () => {
