@@ -50,7 +50,7 @@
   
   const fetchMovies = async (searchTerm: string) => {
     try {
-      const response = await fetch(`http://www.omdbapi.com/?apikey=c99c97e1&s=${searchTerm}`)
+      const response = await fetch(`https://www.omdbapi.com/?apikey=c99c97e1&s=${searchTerm}`)
       const data = await response.json()
       
       if (data.Response === "True") {
